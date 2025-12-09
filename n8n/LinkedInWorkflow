@@ -1,0 +1,535 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -400
+      ],
+      "id": "1f41a9a6-5d17-4562-ae19-cbe4c4b649b6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Caption saved successfully!\" } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f297dc9c-c284-4c57-82c4-01276199cc24",
+      "name": "Return Save Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Approved Captions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$json.body.timestamp || $json.timestamp}}",
+            "Topic": "={{ $json.body.topic || $json.topic }}",
+            "All Captions": "={{ $json.body.captions ? JSON.stringify($json.body.captions) : ( $json.captions ? JSON.stringify($json.captions) : '' ) }}",
+            "Captions JSON": "={{ (() => { const caps = $json.body.captions || $json.captions || []; const obj = {}; for (let i=0;i<caps.length;i++){ const idx = i+1; obj['caption'+idx] = caps[i].caption || ''; obj['hashtags'+idx] = (caps[i].hashtags || []).join(', '); obj['seoScore'+idx] = caps[i].seoScore || {}; obj['metrics'+idx] = caps[i].metrics || {}; obj['hook'+idx] = caps[i].hook || ''; } return JSON.stringify(obj); })() }}",
+            "Selected Index": "={{ (typeof $json.body.selectedIndex !== 'undefined') ? ($json.body.selectedIndex + 1) : (typeof $json.selectedIndex !== 'undefined' ? ($json.selectedIndex + 1) : '') }}",
+            "Original Caption": "={{ $json.body.originalCaption || $json.originalCaption || ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' ? ($json.body.captions[$json.body.selectedIndex] && $json.body.captions[$json.body.selectedIndex].caption) : '' ) }}",
+            "Final Caption": "={{ $json.body.finalCaption || $json.finalCaption }}",
+            "User Edited": "={{ $json.body.userEdited !== undefined ? $json.body.userEdited : ($json.userEdited || false) }}",
+            "Hook": "={{ $json.body.hook || ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' ? ($json.body.captions[$json.body.selectedIndex] && $json.body.captions[$json.body.selectedIndex].hook) : '' ) }}",
+            "Hashtags": "={{ $json.body.hashtags || ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' ? ($json.body.captions[$json.body.selectedIndex] && ($json.body.captions[$json.body.selectedIndex].hashtags || []).join(', ')) : '' ) }}",
+            "SEO Score": "={{ $json.body.seoScore || ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' ? ($json.body.captions[$json.body.selectedIndex] && $json.body.captions[$json.body.selectedIndex].seoScore && $json.body.captions[$json.body.selectedIndex].seoScore.overall) : $json.seoScore || '' ) }}",
+            "SEO Grade": "={{ $json.body.seoGrade || ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' ? ($json.body.captions[$json.body.selectedIndex] && $json.body.captions[$json.body.selectedIndex].seoScore && $json.body.captions[$json.body.selectedIndex].seoScore.grade) : '' ) }}",
+            "Metrics": "={{ $json.body.metrics ? JSON.stringify($json.body.metrics) : ( $json.body.captions && typeof $json.body.selectedIndex !== 'undefined' && $json.body.captions[$json.body.selectedIndex] && $json.body.captions[$json.body.selectedIndex].metrics ? JSON.stringify($json.body.captions[$json.body.selectedIndex].metrics) : '' ) }}",
+            "Edit Summary": "={{ $json.body.editSummary || '' }}",
+            "Selected Reason": "={{ $json.body.selectedReason || '' }}",
+            "Keywords": "={{ $json.body.keywords ? ($json.body.keywords.join ? $json.body.keywords.join(', ') : $json.body.keywords) : ($json.keywords ? ($json.keywords.join ? $json.keywords.join(', ') : $json.keywords) : '') }}",
+            "Target Audience": "={{ $json.body.targetAudience || $json.targetAudience || '' }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "All Captions",
+              "displayName": "All Captions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Captions JSON",
+              "displayName": "Captions JSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Selected Index",
+              "displayName": "Selected Index",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Original Caption",
+              "displayName": "Original Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Final Caption",
+              "displayName": "Final Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User Edited",
+              "displayName": "User Edited",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hook",
+              "displayName": "Hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hashtags",
+              "displayName": "Hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SEO Score",
+              "displayName": "SEO Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SEO Grade",
+              "displayName": "SEO Grade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Metrics",
+              "displayName": "Metrics",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Edit Summary",
+              "displayName": "Edit Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Selected Reason",
+              "displayName": "Selected Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keywords",
+              "displayName": "Keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Target Audience",
+              "displayName": "Target Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "117ba8a3-c529-419e-b901-e34a833bc12b",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -240,
+        -256
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "save-approved-caption",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "663e7199-8bce-4553-80cd-77b6ffcdfb08",
+      "name": "Save Approved Caption Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -256
+      ],
+      "webhookId": "save-approved-webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a LinkedIn caption about: {{ $json.body.topic || $json.topic }}|Requirements:- Tone: {{ $json.body.tone || $json.tone || 'professional' }}- Length: {{ $json.body.length || $json.length || 'medium' }} (short: 50-100, medium: 100-200, long: 200-400 chars)- Target: {{ $json.body.targetAudience || $json.targetAudience || 'professionals' }}- Industry: {{ $json.body.industry || $json.industry || 'general' }}- {{ ($json.body.includeHashtags !== false && $json.includeHashtags !== false) ? 'Include 3-5 hashtags' : 'No hashtags' }}{{ ($json.body.keywords && $json.body.keywords.length > 0) || ($json.keywords && $json.keywords.length > 0) ? '- Keywords: ' + ($json.body.keywords || $json.keywords).join(', ') : '' }}Format: [Hook] + [Content] + [CTA] + [Hashtags]",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert LinkedIn content creator. RETURN ONLY valid JSON and NOTHING ELSE (no explanation, no code fences).\n\nOutput MUST be: { \"captions\": [ { \"caption\": string, \"hook\": string, \"hashtags\": [string] }, ... ] } with EXACTLY 10 caption objects.\n\nConstraints: each \"caption\" must be a single paragraph, 50-200 characters. Keep objects minimal: do NOT include nested metrics or seoScore. Use simple ASCII. If you cannot produce 10 valid captions, return: { \"error\": \"brief reason\" }."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        48,
+        -592
+      ],
+      "id": "cfae2b37-d03f-47d8-98fc-8544d694a24f",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linkedin-caption",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "a51f993b-f299-4e2a-80f9-4193efca37e4",
+      "name": "LinkedIn Caption Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -592
+      ],
+      "webhookId": "linkedin-caption-webhook"
+    },
+    {
+      "parameters": {
+        "path": "upload-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "2ab0e92b-4e4c-4505-9aea-daf3abcb4023",
+      "name": "Style Reference Upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        208
+      ],
+      "webhookId": "upload-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced Style Analysis with Topic Awareness\nconst inputData = $input.first().json;\n\n// Check if file data is provided\nif (!inputData.fileContent && !inputData.filePath) {\n  throw new Error('File content or file path is required');\n}\n\nconst fileType = inputData.fileType || 'text';\nconst fileName = inputData.fileName || 'style_reference';\n\n// Enhanced parsing with topic metadata\nlet captionEntries = [];\n\nif (inputData.fileContent) {\n  if (fileType === 'csv' || fileType === 'txt') {\n    // Enhanced parsing for topic metadata\n    const sections = inputData.fileContent.split(/\\n---\\n|\\n\\n---\\n\\n/);\n    \n    sections.forEach(section => {\n      const trimmed = section.trim();\n      if (trimmed.length < 20) return; // Skip short sections\n      \n      // Parse topic metadata if present\n      const lines = trimmed.split('\\n');\n      let topic = 'general';\n      let contentType = 'general';\n      let keywords = [];\n      let captionStart = 0;\n      \n      // Look for metadata in first few lines\n      for (let i = 0; i < Math.min(5, lines.length); i++) {\n        const line = lines[i].trim();\n        if (line.startsWith('TOPIC:')) {\n          topic = line.replace('TOPIC:', '').trim().toLowerCase();\n          captionStart = Math.max(captionStart, i + 1);\n        } else if (line.startsWith('CONTENT_TYPE:')) {\n          contentType = line.replace('CONTENT_TYPE:', '').trim().toLowerCase();\n          captionStart = Math.max(captionStart, i + 1);\n        } else if (line.startsWith('KEYWORDS:')) {\n          keywords = line.replace('KEYWORDS:', '').split(',').map(k => k.trim().toLowerCase());\n          captionStart = Math.max(captionStart, i + 1);\n        } else if (line && !line.startsWith('TOPIC:') && !line.startsWith('CONTENT_TYPE:') && !line.startsWith('KEYWORDS:')) {\n          break; // Found actual content\n        }\n      }\n      \n      // Extract caption content (skip metadata lines)\n      const captionContent = lines.slice(captionStart).join('\\n').trim();\n      \n      if (captionContent.length > 10) {\n        captionEntries.push({\n          content: captionContent,\n          topic: topic,\n          contentType: contentType,\n          keywords: keywords,\n          length: captionContent.length\n        });\n      }\n    });\n    \n    // Fallback: if no metadata found, parse as simple captions\n    if (captionEntries.length === 0) {\n      const simpleCaptions = inputData.fileContent\n        .split(/\\n{2,}|\\r\\n{2,}/)\n        .filter(caption => caption.trim().length > 10)\n        .map(caption => ({\n          content: caption.trim(),\n          topic: 'general',\n          contentType: 'general',\n          keywords: [],\n          length: caption.trim().length\n        }));\n      captionEntries = simpleCaptions;\n    }\n  }\n}\n\n// Group captions by topic for analysis\nconst topicGroups = {};\ncaptionEntries.forEach(entry => {\n  if (!topicGroups[entry.topic]) {\n    topicGroups[entry.topic] = [];\n  }\n  topicGroups[entry.topic].push(entry);\n});\n\n// Analyze patterns for each topic\nconst topicAnalysis = {};\nObject.keys(topicGroups).forEach(topic => {\n  const captions = topicGroups[topic];\n  \n  // Extract hashtags for this topic\n  const topicHashtags = [];\n  captions.forEach(caption => {\n    const hashtags = caption.content.match(/#\\w+/g) || [];\n    topicHashtags.push(...hashtags);\n  });\n  \n  // Count hashtag frequency for this topic\n  const hashtagCount = {};\n  topicHashtags.forEach(tag => {\n    hashtagCount[tag] = (hashtagCount[tag] || 0) + 1;\n  });\n  \n  // Analyze tone for this topic\n  const topicText = captions.map(c => c.content).join(' ').toLowerCase();\n  const toneWords = {\n    professional: ['expertise', 'insights', 'strategy', 'experience', 'knowledge', 'professional', 'industry'],\n    casual: ['hey', 'awesome', 'cool', 'fun', 'love', 'amazing', 'excited'],\n    inspiring: ['journey', 'growth', 'success', 'achieve', 'inspire', 'motivate', 'believe'],\n    educational: ['learn', 'tip', 'guide', 'how', 'why', 'explain', 'understand', 'discover'],\n    personal: ['my', 'I', 'personal', 'story', 'journey', 'experience', 'feel', 'grateful']\n  };\n  \n  const toneScores = {};\n  Object.keys(toneWords).forEach(tone => {\n    toneScores[tone] = 0;\n    toneWords[tone].forEach(word => {\n      const regex = new RegExp(`\\\\b${word}\\\\b`, 'gi');\n      const matches = topicText.match(regex) || [];\n      toneScores[tone] += matches.length;\n    });\n  });\n  \n  const dominantTone = Object.entries(toneScores)\n    .sort(([,a], [,b]) => b - a)[0][0];\n  \n  // Extract common keywords for this topic\n  const allKeywords = [];\n  captions.forEach(caption => {\n    allKeywords.push(...caption.keywords);\n  });\n  \n  const keywordCount = {};\n  allKeywords.forEach(keyword => {\n    keywordCount[keyword] = (keywordCount[keyword] || 0) + 1;\n  });\n  \n  topicAnalysis[topic] = {\n    captionCount: captions.length,\n    avgLength: captions.reduce((sum, cap) => sum + cap.length, 0) / captions.length,\n    dominantTone: dominantTone,\n    toneScores: toneScores,\n    commonHashtags: Object.entries(hashtagCount)\n      .sort(([,a], [,b]) => b - a)\n      .slice(0, 8)\n      .map(([tag]) => tag),\n    hashtagFrequency: topicHashtags.length / captions.length,\n    commonKeywords: Object.entries(keywordCount)\n      .sort(([,a], [,b]) => b - a)\n      .slice(0, 10)\n      .map(([keyword, count]) => ({ keyword, count })),\n    contentTypes: [...new Set(captions.map(c => c.contentType))],\n    sampleCaptions: captions.slice(0, 3).map(c => c.content)\n  };\n});\n\n// Create comprehensive style summary\nconst totalCaptions = captionEntries.length;\nconst overallAnalysis = {\n  totalCaptions,\n  topicCount: Object.keys(topicGroups).length,\n  topics: Object.keys(topicGroups),\n  avgLength: captionEntries.reduce((sum, cap) => sum + cap.length, 0) / totalCaptions,\n  topicDistribution: Object.keys(topicGroups).map(topic => ({\n    topic,\n    count: topicGroups[topic].length,\n    percentage: (topicGroups[topic].length / totalCaptions * 100).toFixed(1)\n  }))\n};\n\n// Create topic-aware style summary\nconst styleSummary = `\nTopic-Aware Writing Style Analysis:\n- Total Captions: ${totalCaptions}\n- Topics Covered: ${Object.keys(topicGroups).length} (${Object.keys(topicGroups).join(', ')})\n- Overall Average Length: ${Math.round(overallAnalysis.avgLength)} characters\n\nTopic-Specific Patterns:\n${Object.entries(topicAnalysis).map(([topic, analysis]) => \n`\\n• ${topic.toUpperCase()}:\n  - Captions: ${analysis.captionCount} (${(analysis.captionCount/totalCaptions*100).toFixed(1)}%)\n  - Avg Length: ${Math.round(analysis.avgLength)} chars\n  - Tone: ${analysis.dominantTone}\n  - Key Hashtags: ${analysis.commonHashtags.slice(0, 4).join(', ')}\n  - Keywords: ${analysis.commonKeywords.slice(0, 5).map(k => k.keyword).join(', ')}`\n).join('')}\n\nStyle Guidelines:\n- Match topic-specific tone and vocabulary\n- Use appropriate hashtags for each topic category\n- Maintain consistent voice across all topics\n- Adapt length based on topic complexity\n`;\n\nreturn [{\n  json: {\n    fileName,\n    fileType,\n    analysis: overallAnalysis,\n    topicAnalysis,\n    styleSummary,\n    captionEntries: captionEntries.slice(0, 5), // Store sample entries\n    timestamp: new Date().toISOString(),\n    success: true\n  }\n}];"
+      },
+      "id": "d6b6f704-8a18-41b8-8e16-15feea1652ff",
+      "name": "Analyze Writing Style",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": "Style Analysis",
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "da51319a-177b-462e-8156-a1f46038faeb",
+      "name": "Save Style Analysis",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -160,
+        192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ (() => { try { // Robust parsing: try JSON.parse of $json.text, then extract a JSON substring, then fallback to raw structures\n      const rawText = $json.text ? $json.text : (typeof $json === 'string' ? $json : JSON.stringify($json));\n      let parsed;\n      try {\n        parsed = $json.text ? JSON.parse($json.text) : $json;\n      } catch (e) {\n        // Try to extract a JSON object/array from the text (common when LLM returns text with surrounding commentary)\n        const m = rawText.match(/(\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])/);\n        if (m) {\n          try { parsed = JSON.parse(m[0]); } catch (e2) { parsed = rawText; }\n        } else {\n          parsed = rawText;\n        }\n      }\n\n      let captions = [];\n      if (Array.isArray(parsed)) {\n        captions = parsed;\n      } else if (parsed && parsed.captions && Array.isArray(parsed.captions)) {\n        captions = parsed.captions;\n      } else if (parsed && typeof parsed === 'object') {\n        // Look for caption1..caption10 or caption_1..caption_10\n        for (let i = 1; i <= 10; i++) {\n          const k1 = 'caption' + i;\n          const k2 = 'caption_' + i;\n          if (parsed[k1]) captions.push(parsed[k1]);\n          else if (parsed[k2]) captions.push(parsed[k2]);\n        }\n        if (captions.length === 0) {\n          // Maybe parsed itself is the single caption object\n          captions = [parsed];\n        }\n      } else if (typeof parsed === 'string') {\n        // Try splitting common list formats (numbered, double-newline, or dash lists)\n        captions = parsed.split(/\\n\\s*\\d+\\.|\\n{2,}|\\n-\\s*/).map(s => s.trim()).filter(Boolean);\n      }\n\n      // Normalize to objects with caption\n      captions = captions.map(item => {\n        if (typeof item === 'string') return { caption: item };\n        const c = Object.assign({}, item);\n        if (!c.caption) {\n          const parts = [];\n          if (c.hook) parts.push(c.hook);\n          if (c.mainContent) parts.push(c.mainContent);\n          if (c.hashtags && Array.isArray(c.hashtags)) parts.push(c.hashtags.join(' '));\n          c.caption = parts.join(' ').replace(/\\s+/g, ' ').trim();\n        }\n        // Ensure single-line, single space, and truncate to 200 chars\n        c.caption = (c.caption || '').replace(/\\n+/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 200);\n        return c;\n      });\n\n      // Deduplicate exact captions and keep order\n      const seen = new Set();\n      const unique = [];\n      for (const c of captions) {\n        const key = (c.caption || '').trim();\n        if (!key) continue;\n        if (!seen.has(key)) { seen.add(key); unique.push(c); }\n      }\n\n      // Limit to 10 results\n      const limited = unique.slice(0, 10);\n      const message = limited.length === 0 ? 'Failed to extract captions from LLM response' : 'LinkedIn caption generated successfully!';\n      return { success: limited.length > 0, data: { captions: limited }, message };\n    } catch (err) { return { success: false, message: 'Failed to parse LLM response', error: String(err) }; } })() }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "eaeef6ca-0ac5-474e-876b-f1be88961cd8",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -592
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"data\": { \"fileName\": $json.fileName, \"analysis\": $json.analysis, \"styleSummary\": $json.styleSummary, \"timestamp\": $json.timestamp }, \"message\": \"Style analysis completed successfully. Your writing patterns have been analyzed and saved.\" } }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "49a215ec-e99b-4268-9df1-7b63eaa71f7a",
+      "name": "Return Upload Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        224,
+        208
+      ]
+    }
+  ],
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Return Save Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Approved Caption Webhook": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Return Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Caption Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Style Reference Upload": {
+      "main": [
+        [
+          {
+            "node": "Analyze Writing Style",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Writing Style": {
+      "main": [
+        [
+          {
+            "node": "Save Style Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Style Analysis": {
+      "main": [
+        [
+          {
+            "node": "Return Upload Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "redacted"
+  }
+}
