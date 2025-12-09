@@ -10,6 +10,7 @@ This Zapier workflow automatically processes data received via a webhook, posts 
 
 ## 🖼️ Workflow Overview
 
+<img width="565" height="700" alt="image" src="https://github.com/user-attachments/assets/26d95926-69e3-43a5-8045-441e58d7578c" />
 
 
 ## 🎯 Goal
