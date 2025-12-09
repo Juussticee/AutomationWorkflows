@@ -1,0 +1,118 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  let text = item.json.text || '';\n  try {\n    text = text.replace(/```json|```/gi, '').trim();\n    const data = JSON.parse(text);\n    return { json: data };\n  } catch (e) {\n    return { json: { classification: \"other\", intent: \"unknown\", confidence: \"low\", error: e.message } };\n  }\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 0],
+      "id": "eb30c766-6795-41e3-99a2-fa0e7185981b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            { "id": "df2cb433-b02f-41f4-bbd4-9b28b15f8548", "leftValue": "={{ $json.classification }}", "rightValue": "client", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [768, 0],
+      "id": "e340527e-06ca-4e22-8a93-76f4aa3f752e",
+      "name": "If"
+    },
+    {
+      "parameters": { "options": {} },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [160, 192],
+      "id": "4d2148a4-4f5d-41b2-8d69-5e6d35fc38b5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": { "id": "REDACTED", "name": "Google Gemini(PaLM) API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You receive the following email data: ... Analyze this email according to system instructions and return JSON only.",
+        "messages": { "messageValues": [{ "message": "AI email-analysis assistant instructions. ... Return strict JSON only." }] },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [208, 0],
+      "id": "f257add1-530a-4bfc-ac88-96ddb2a53638",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 0],
+      "id": "3bfc44cd-f253-460e-99b1-e6dc1b69ac11",
+      "name": "Gmail Trigger",
+      "credentials": { "gmailOAuth2": { "id": "REDACTED", "name": "Gmail Account" } }
+    },
+    {
+      "parameters": { "operation": "get", "messageId": "={{ $('Gmail Trigger').item.json.id }}", "simple": false, "options": {} },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1040, 16],
+      "id": "f10b9c94-0814-4f53-b722-53ca1264344d",
+      "name": "Get a message",
+      "credentials": { "gmailOAuth2": { "id": "REDACTED", "name": "Gmail Account" } }
+    },
+    {
+      "parameters": { "jsCode": "// code to clean and format email content ... (removed sensitive info)" },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1280, 16],
+      "id": "37cd8ff5-4156-4f49-a703-1fe67a0693f6",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": { "operation": "executeQuery", "query": "-- SQL queries removed sensitive credentials and emails" },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [784, 544],
+      "id": "0a1060bb-4d33-4b9b-988b-a32a56f42ab8",
+      "name": "Execute a SQL query",
+      "credentials": { "postgres": { "id": "REDACTED", "name": "Postgres Account" } }
+    },
+    {
+      "parameters": { "rule": { "interval": [{}] } },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [-16, 736],
+      "id": "4b24f131-77ab-472d-abde-eccea4ac5031",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": { "otherOptions": {} },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [400, 736],
+      "id": "d27f22f6-e25c-4fcb-aba2-4f903cafeb65",
+      "name": "Send a message"
+    }
+  ],
+  "connections": {
+    "Code in JavaScript": { "main": [[{ "node": "If", "type": "main", "index": 0 }]] },
+    "If": { "main": [[], [{ "node": "Get a message", "type": "main", "index": 0 }]] },
+    "Google Gemini Chat Model": { "ai_languageModel": [[{ "node": "Basic LLM Chain", "type": "ai_languageModel", "index": 0 }]] },
+    "Basic LLM Chain": { "main": [[{ "node": "Code in JavaScript", "type": "main", "index": 0 }]] },
+    "Gmail Trigger": { "main": [[{ "node": "Basic LLM Chain", "type": "main", "index": 0 }]] },
+    "Get a message": { "main": [[{ "node": "Code in JavaScript1", "type": "main", "index": 0 }]] }
+  },
+  "meta": { "templateCredsSetupCompleted": true, "instanceId": "REDACTED" }
+}
