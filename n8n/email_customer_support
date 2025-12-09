@@ -1,21 +1,39 @@
 {
+  "name": "CustomerSuppport",
   "nodes": [
     {
       "parameters": {
-        "jsCode": "return items.map(item => {\n  let text = item.json.text || '';\n  try {\n    text = text.replace(/```json|```/gi, '').trim();\n    const data = JSON.parse(text);\n    return { json: data };\n  } catch (e) {\n    return { json: { classification: \"other\", intent: \"unknown\", confidence: \"low\", error: e.message } };\n  }\n});\n"
+        "jsCode": "return items.map(item => { let text = item.json.text || ''; try { // Try to extract JSON even if fenced or messy text = text.replace(/```json|```/gi, '').trim(); const data = JSON.parse(text); return { json: data }; } catch (e) { // Default fallback if parsing fails return { json: { classification: \"other\", intent: \"unknown\", confidence: \"low\", error: e.message } }; } });"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [560, 0],
-      "id": "eb30c766-6795-41e3-99a2-fa0e7185981b",
+      "position": [
+        560,
+        0
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "Code in JavaScript"
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
           "conditions": [
-            { "id": "df2cb433-b02f-41f4-bbd4-9b28b15f8548", "leftValue": "={{ $json.classification }}", "rightValue": "client", "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" } }
+            {
+              "id": "[REDACTED_KEY]",
+              "leftValue": "={{ $json.classification }}",
+              "rightValue": "client",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
           ],
           "combinator": "and"
         },
@@ -23,96 +41,467 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [768, 0],
-      "id": "e340527e-06ca-4e22-8a93-76f4aa3f752e",
+      "position": [
+        768,
+        0
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "If"
     },
     {
-      "parameters": { "options": {} },
+      "parameters": {
+        "options": {}
+      },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
-      "position": [160, 192],
-      "id": "4d2148a4-4f5d-41b2-8d69-5e6d35fc38b5",
-      "name": "Google Gemini Chat Model",
-      "credentials": {
-        "googlePalmApi": { "id": "REDACTED", "name": "Google Gemini(PaLM) API" }
-      }
+      "position": [
+        160,
+        192
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Google Gemini Chat Model"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You receive the following email data: ... Analyze this email according to system instructions and return JSON only.",
-        "messages": { "messageValues": [{ "message": "AI email-analysis assistant instructions. ... Return strict JSON only." }] },
+        "text": "=You receive the following email data: Email (From): {{ $json.From }} Subject: {{ $json[\"Subject\"] }} Snippet: {{ $json[\"snippet\"] }} Gmail Message ID: {{ $json.id }} Gmail Thread ID: {{ $json.threadId }} Analyze this email according to the system instructions and return JSON only.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an intelligent email-analysis assistant. Your tasks: Extract sender_name and sender_email from the \"From\" field. Example: \"Sebastian \" \u2192 name: \"Sebastian\", email: \"[REDACTED_EMAIL]\". Classify the email as: \"client\" \u2192 real human communication: orders, support, complaints, questions, invoices, follow-ups. \"other\" \u2192 newsletters, promotions, ads, automated messages, spam, system notifications. Infer the sender\u2019s company name from the email domain. If the domain is like @company.com, then \"company\": \"company\" If it\u2019s a generic provider like gmail/yahoo/outlook \u2192 \"company\": null Determine the intent of the email (one of): order, question, issue, complaint, follow-up, [REDACTED_KEY], marketing, spam, system-notification, other. Detect if this email is a continuation of a previous conversation. Return \"is_continuation\": true if: sender references earlier conversation (\"following up\", \"as mentioned before\", etc.) the message clearly continues an earlier topic the snippet strongly implies a prior discussion Even if the Gmail Thread ID is new. Return strict JSON only, with exactly these fields: { \"classification\": \"\", \"intent\": \"\", \"is_continuation\": true or false, \"reason\": \"\", \"confidence\": \"high | medium | low\", \"sender_name\": \"\", \"sender_email\": \"\", \"subject\": \"{{subject}}\", \"body_summary\": \"{{snippet summary}}\", \"message_id\": \"{{id}}\", \"thread_id\": \"{{threadId}}\", \"company\": \"\" } Do not return markdown, code blocks, or any text outside of the JSON."
+            }
+          ]
+        },
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
-      "position": [208, 0],
-      "id": "f257add1-530a-4bfc-ac88-96ddb2a53638",
+      "position": [
+        208,
+        0
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "Basic LLM Chain"
     },
     {
       "parameters": {
-        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
         "filters": {}
       },
       "type": "n8n-nodes-base.gmailTrigger",
       "typeVersion": 1.3,
-      "position": [0, 0],
-      "id": "3bfc44cd-f253-460e-99b1-e6dc1b69ac11",
-      "name": "Gmail Trigger",
-      "credentials": { "gmailOAuth2": { "id": "REDACTED", "name": "Gmail Account" } }
+      "position": [
+        0,
+        0
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Gmail Trigger"
     },
     {
-      "parameters": { "operation": "get", "messageId": "={{ $('Gmail Trigger').item.json.id }}", "simple": false, "options": {} },
+      "parameters": {
+        "promptType": "define",
+        "text": "={ \"thread\": { \"id\": \"{{ $('Execute a SQL query1').item.json.llm_payload.thread.id }}\", \"subject\": \"{{ $('Execute a SQL query1').item.json.llm_payload.thread.subject }}\", \"ai_summary\": \"{{ $('Execute a SQL query1').item.json.llm_payload.thread.ai_summary }}\", \"assigned_to_human\": {{ $('Execute a SQL query1').item.json.llm_payload.thread.assigned_to_human }} }, \"messages\": [ {% for msg in $json.llm_payload.messages %} { \"sender_email\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].sender_email }}\", \"sender_name\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].sender_name }}\", \"body\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].body }}\", \"classification\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].classification }}\", \"intent\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].intent }}\", \"reason\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].reason }}\", \"confidence\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].confidence }}\", \"received_at\": \"{{ $('Execute a SQL query1').item.json.llm_payload.messages[0].received_at }}\" }{% if not loop.last %},{% endif %} {% endfor %} ], \"current_message\": { \"sender_email\": \"{{ $('Code in JavaScript').item.json.sender_email }}\", \"sender_name\": \"{{ $('Code in JavaScript').item.json.sender_name }}\", \"subject\": \"{{ $('Code in JavaScript').item.json.subject }}\", \"body_summary\": \"{{ $('Code in JavaScript').item.json.body_summary }}\", \"classification\": \"{{ $('Get a message').item.json.classification }}\", \"intent\": \"{{ $('Code in JavaScript').item.json.intent }}\", \"reason\": \"{{ $('Code in JavaScript').item.json.reason }}\", \"confidence\": \"{{ $('Code in JavaScript').item.json.confidence }}\", \"received_at\": \"{{ $('Get a message').item.json.date }}\" } }",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a customer support AI assistant. Your job is to respond to incoming customer emails. Follow these rules carefully: 1. **Context Awareness** - Check if this email is a continuation of an existing thread. - If it is, include all previous messages from the thread in your response. - If it is from the same user but a new email address, check if it matches any open threads by topic. - If yes \u2192 treat as continuation. - If no \u2192 treat as a new thread. 2. **Content Rules** - Only generate responses if you have enough context. - If context is insufficient for a continuation: - Politely ask the user for more details: - Example: \u201cPlease provide the email address you used before or details of your previous request.\u201d - Never ask for context if it\u2019s already available in previous messages. 3. **Human-Agent Threads** - If the thread is flagged as assigned to a human agent, **do not reply**. - Instead, include a reminder/note for the agent that a new email has arrived. 4. **Reply Guidelines** - Be professional and clear. - Always provide concise information relevant to the thread\u2019s topic. - If the issue cannot be resolved by AI, suggest human intervention. 5. **Thread Management** - If this email is part of a continuation: - Reference the parent thread ID. - Close the parent thread if appropriate. - If the conversation is solved, mark the thread as closed. - Always include a summary for: - The current message. - The entire thread conversation so far. 6. **Data Fields You Can Use** - `incoming_email` \u2192 body of the new email. - `sender_email` \u2192 email of the customer. - `previous_messages` \u2192 all messages in this thread (if continuation). - `multiple_threads` \u2192 other open threads from this user (if relevant). - `thread_status` \u2192 status of the thread (open, closed, human-agent). - `parent_thread_id` \u2192 ID of previous thread if this is continuation. 7. **Output** - Your response must include: - `ai_reply` \u2192 the AI-generated email body. - `message_summary` \u2192 a short summary of the AI\u2019s reply. - `thread_summary` \u2192 updated summary of the entire thread. - `parent_thread_id` \u2192 reference if continuation, else null. **Always prioritize accuracy and avoid unnecessary questions if context exists.**"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1296,
+        432
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "simple": false,
+        "options": {}
+      },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1040, 16],
-      "id": "f10b9c94-0814-4f53-b722-53ca1264344d",
+      "position": [
+        1040,
+        16
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "Get a message",
-      "credentials": { "gmailOAuth2": { "id": "REDACTED", "name": "Gmail Account" } }
+      "webhookId": "[REDACTED_KEY]"
     },
     {
-      "parameters": { "jsCode": "// code to clean and format email content ... (removed sensitive info)" },
+      "parameters": {
+        "jsCode": "// // 1) BASIC FIELDS // const sender_email = $('If').first().json.sender_email; const sender_name = $('If').first().json.sender_name; const subject = $('If').first().json.subject ? $('If').first().json.subject.replace(/'/g, \"''\") : null; const snippet = $('Gmail Trigger').first().json.snippet ? $('Gmail Trigger').first().json.snippet.replace(/'/g, \"''\") : null; const gmail_message_id = $input.first().json.id; const gmail_thread_id = $input.first().json.threadId; const classification = $('If').first().json.classification; const intent = $('If').first().json.intent; const confidence = $('If').first().json.confidence; const reason = $('If').first().json.reason ? $('If').first().json.reason.replace(/'/g, \"''\") : null; // // 2) CLEAN BODY // const html = $json.textAsHtml || \"\"; const text = $json.text || \"\"; // Remove HTML tags let cleaned = html.replace(/]+>/g, \" \"); // Remove URLs cleaned = cleaned.replace(/https?:\\/\\/\\S+/g, \" \"); // Remove empty brackets cleaned = cleaned.replace(/\\[\\s*\\]/g, \"\"); cleaned = cleaned.replace(/\\[\\s*[^]]*\\s*\\]/g, \"\"); // \ud83d\udd25 Remove ZERO-WIDTH unicode characters (your main issue) cleaned = cleaned.replace(/[\\u200B-\\u200F\\uFEFF]/g, \"\"); // \ud83d\udd25 Remove HTML ENTITIES of zero-width characters before decoding cleaned = cleaned.replace(/&(zwnj|zwj|lrm|rlm|nbsp|thinsp|hairsp|NegativeMediumSpace|ZeroWidthSpace);/gi, \" \"); // Remove extra whitespace cleaned = cleaned.replace(/\\s+/g, \" \").trim(); // Fallback if HTML is empty if (!cleaned) cleaned = text; // // 3) STRONG HTML ENTITY DECODER // function decodeEntities(str) { const map = { ''': '\u2019', ''': '\u2018', '\"': '\u201d', '\"': '\u201c', '\"': '\"', '&': '&', ' ': ' ', '\u2026': '\u2026', '\u2026': '\u2026', '-': '\u2013', '-': '\u2014', ''': \"'\", ''': \"'\", }; return str.replace(/&[a-zA-Z0-9#]+;/g, (match) => map[match] || \"\"); } cleaned = decodeEntities(cleaned); const raw_body = decodeEntities(text); // // 4) RETURN FORMATTED OUTPUT // return [ { json: { sender_email, sender_name, subject, snippet, gmail_message_id, gmail_thread_id, classification, intent, confidence, reason, cleaned_body: cleaned, raw_body: raw_body } } ];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1280, 16],
-      "id": "37cd8ff5-4156-4f49-a703-1fe67a0693f6",
+      "position": [
+        1280,
+        16
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "Code in JavaScript1"
     },
     {
-      "parameters": { "operation": "executeQuery", "query": "-- SQL queries removed sensitive credentials and emails" },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [784, 544],
-      "id": "0a1060bb-4d33-4b9b-988b-a32a56f42ab8",
-      "name": "Execute a SQL query",
-      "credentials": { "postgres": { "id": "REDACTED", "name": "Postgres Account" } }
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "[REDACTED_KEY]",
+              "leftValue": "={{ $('Code in JavaScript').item.json.is_continuation }}",
+              "rightValue": "false",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "[REDACTED_KEY]",
+              "leftValue": "={{ $json.gmail_thread_id }}",
+              "rightValue": "={{ $json.gmail_message_id }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        416
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "If1"
     },
     {
-      "parameters": { "rule": { "interval": [{}] } },
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH incoming AS ( SELECT '{{ $('Code in JavaScript1').item.json.sender_email }}'::text AS sender_email, '{{ $('Code in JavaScript1').item.json.sender_name }}'::text AS sender_name, '{{ $('Code in JavaScript1').item.json.subject }}'::text AS subject, '{{ $('Code in JavaScript1').item.json.snippet }}'::text AS snippet, '{{ $json.gmail_message_id }}'::text AS gmail_message_id, '{{ $json.gmail_thread_id }}'::text AS gmail_thread_id, '{{ $('Code in JavaScript1').item.json.classification }}'::text AS classification, '{{ $('Code in JavaScript1').item.json.intent }}'::text AS intent, '{{ $('Code in JavaScript1').item.json.confidence }}'::text AS confidence, '{{ $('Code in JavaScript1').item.json.reason }}'::text AS reason, '{{ $('Code in JavaScript1').item.json.cleaned_body }}'::text AS body ), thread_resolved AS ( SELECT id, subject, ai_summary FROM threads WHERE gmail_thread_id = (SELECT gmail_thread_id FROM incoming) ), messages_in_thread AS ( SELECT m.id AS message_id, m.sender_type, c.name AS sender_name, c.email AS sender_email, m.body, m.summary, m.classification, m.intent, m.reason, m.confidence, m.received_at FROM messages m LEFT JOIN customers c ON m.sender_id = c.id WHERE m.thread_id = (SELECT id FROM thread_resolved) ORDER BY m.received_at ASC ) SELECT jsonb_build_object( 'thread', jsonb_build_object( 'id', (SELECT id FROM thread_resolved), 'subject', (SELECT subject FROM thread_resolved), 'ai_summary', (SELECT ai_summary FROM thread_resolved) ), 'messages', ( COALESCE( (SELECT jsonb_agg(messages_in_thread)::jsonb FROM messages_in_thread), '[]'::jsonb ) || jsonb_build_array( jsonb_build_object( 'sender_type', 'customer', 'sender_name', (SELECT sender_name FROM incoming), 'sender_email', (SELECT sender_email FROM incoming), 'body', (SELECT body FROM incoming), 'classification', (SELECT classification FROM incoming), 'intent', (SELECT intent FROM incoming), 'reason', (SELECT reason FROM incoming), 'confidence', (SELECT confidence FROM incoming), 'summary', NULL, 'received_at', now() ) ) ) ) AS llm_payload;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        784,
+        544
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Execute a SQL query"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH incoming AS ( SELECT '{{ $('Code in JavaScript1').item.json.sender_email }}'::text AS sender_email, '{{ $('Code in JavaScript1').item.json.sender_name }}'::text AS sender_name, '{{ $('Code in JavaScript1').item.json.subject }}'::text AS subject, '{{ $('Code in JavaScript1').item.json.snippet }}'::text AS snippet, '{{ $json.gmail_message_id }}'::text AS gmail_message_id, '{{ $json.gmail_thread_id }}'::text AS gmail_thread_id, '{{ $('Code in JavaScript1').item.json.classification }}'::text AS classification, '{{ $('Code in JavaScript1').item.json.intent }}'::text AS intent, '{{ $('Code in JavaScript1').item.json.confidence }}'::text AS confidence, '{{ $('Code in JavaScript1').item.json.reason }}'::text AS reason, '{{ $('Code in JavaScript1').item.json.cleaned_body }}'::text AS body WHERE '{{ $('Code in JavaScript1').item.json.sender_email }}' IS NOT NULL ), -- Ensure user exists user_insert AS ( INSERT INTO users (name) VALUES ((SELECT sender_name FROM incoming)) ON CONFLICT DO NOTHING RETURNING id, name ), -- Ensure email exists & map it to a user email_insert AS ( INSERT INTO user_emails (email, user_id) SELECT i.sender_email, COALESCE(ui.id, (SELECT user_id FROM user_emails WHERE email = i.sender_email)) FROM incoming i LEFT JOIN user_insert ui ON TRUE ON CONFLICT (email) DO UPDATE SET user_id = EXCLUDED.user_id RETURNING user_id, email ), -- Find or create thread if not assigned to human thread AS ( INSERT INTO threads (user_id, subject, gmail_thread_id, metadata) SELECT ei.user_id, i.subject, i.gmail_thread_id, jsonb_build_object( 'classification', i.classification, 'intent', i.intent, '[REDACTED_KEY]', i.gmail_message_id, 'sender_email', i.sender_email, 'sender_name', i.sender_name, 'snippet', i.snippet, 'received_at', now() ) FROM incoming i JOIN email_insert ei ON TRUE WHERE NOT EXISTS ( SELECT 1 FROM threads t WHERE t.gmail_thread_id = i.gmail_thread_id AND t.status != 'human-agent' ) RETURNING * ), -- Existing or new thread info thread_info AS ( SELECT * FROM thread UNION SELECT * FROM threads t WHERE t.gmail_thread_id = (SELECT gmail_thread_id FROM incoming) AND t.status != 'human-agent' LIMIT 1 ), -- Insert message if new message_insert AS ( INSERT INTO messages ( thread_id, sender_type, user_id, gmail_message_id, snippet, body, classification, intent, reason, confidence, subject ) SELECT ti.id, 'customer', ei.user_id, i.gmail_message_id, i.snippet, i.body, i.classification, i.intent, i.reason, i.confidence, i.subject FROM incoming i JOIN email_insert ei ON TRUE JOIN thread_info ti ON TRUE ON CONFLICT (gmail_message_id) DO NOTHING RETURNING * ), -- Fetch all messages in this thread messages_in_thread AS ( SELECT m.id AS message_id, m.sender_type, u.name AS sender_name, ue.email AS sender_email, m.body, m.summary, m.classification, m.intent, m.reason, m.confidence, m.received_at FROM messages m LEFT JOIN users u ON u.id = m.user_id LEFT JOIN user_emails ue ON ue.user_id = u.id WHERE m.thread_id = (SELECT id FROM thread_info) ORDER BY m.received_at ASC ) SELECT jsonb_build_object( 'thread', jsonb_build_object( 'id', (SELECT id FROM thread_info), 'subject', (SELECT subject FROM thread_info), 'ai_summary', (SELECT ai_summary FROM thread_info), 'assigned_to_human', (SELECT status = 'human-agent' FROM thread_info) ), 'messages', COALESCE((SELECT jsonb_agg(messages_in_thread) FROM messages_in_thread), '[]'::jsonb) ) AS llm_payload;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        816,
+        336
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Execute a SQL query1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.llm_payload.thread.assigned_to_human }}",
+                    "rightValue": "false",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "[REDACTED_KEY]"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1104,
+        432
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "[REDACTED_KEY]"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Update the message with the AI-generated summary UPDATE messages SET summary = '{{ message_summary }}' WHERE gmail_message_id = '{{ gmail_message_id }}'; -- Update the thread with the AI-generated full thread summary UPDATE threads SET ai_summary = '{{ thread_summary }}' WHERE id = '{{ thread_id }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1664,
+        432
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Execute a SQL query2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
-      "position": [-16, 736],
-      "id": "4b24f131-77ab-472d-abde-eccea4ac5031",
+      "position": [
+        -16,
+        736
+      ],
+      "id": "[REDACTED_KEY]",
       "name": "Schedule Trigger"
     },
     {
-      "parameters": { "otherOptions": {} },
+      "parameters": {
+        "operation": "executeQuery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        192,
+        736
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Execute a SQL query3"
+    },
+    {
+      "parameters": {
+        "otherOptions": {}
+      },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.4,
-      "position": [400, 736],
-      "id": "d27f22f6-e25c-4fcb-aba2-4f903cafeb65",
-      "name": "Send a message"
+      "position": [
+        400,
+        736
+      ],
+      "id": "[REDACTED_KEY]",
+      "name": "Send a message",
+      "webhookId": "[REDACTED_KEY]"
     }
   ],
+  "pinData": {},
   "connections": {
-    "Code in JavaScript": { "main": [[{ "node": "If", "type": "main", "index": 0 }]] },
-    "If": { "main": [[], [{ "node": "Get a message", "type": "main", "index": 0 }]] },
-    "Google Gemini Chat Model": { "ai_languageModel": [[{ "node": "Basic LLM Chain", "type": "ai_languageModel", "index": 0 }]] },
-    "Basic LLM Chain": { "main": [[{ "node": "Code in JavaScript", "type": "main", "index": 0 }]] },
-    "Gmail Trigger": { "main": [[{ "node": "Basic LLM Chain", "type": "main", "index": 0 }]] },
-    "Get a message": { "main": [[{ "node": "Code in JavaScript1", "type": "main", "index": 0 }]] }
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a message": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "[REDACTED_KEY]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "[REDACTED_KEY]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StatusAssignedToHumanOrNot": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query3": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "meta": { "templateCredsSetupCompleted": true, "instanceId": "REDACTED" }
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "[REDACTED_KEY]",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "[REDACTED_KEY]"
+  },
+  "id": "jiuFho1kZNKz0D2v",
+  "tags": []
 }
