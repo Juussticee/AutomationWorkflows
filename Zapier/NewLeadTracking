@@ -1,0 +1,74 @@
+That's excellent\! Providing the detailed setup screens gives us all the information needed to create a comprehensive and useful GitHub README.
+
+Here is the drafted **README.md** template for your Zapier workflow, structured for clarity and ease of replication.
+
+-----
+
+# 🤖 Webhook Data Logger & Slack Notifier Zap
+
+This Zapier workflow automatically processes data received via a webhook, posts a clear notification to a designated Slack channel, and updates a corresponding row in a Google Sheet for logging and tracking purposes.
+
+## 🖼️ Workflow Overview
+
+
+
+## 🎯 Goal
+
+To create a robust, end-to-end automation pipeline for tracking customer appointment bookings from an external system.
+
+## 🛠️ Applications Used
+
+1.  **Webhooks by Zapier** (Trigger)
+2.  **Slack** (Action)
+3.  **Google Sheets** (Action)
+
+-----
+
+## ⚙️ Step-by-Step Configuration
+
+### 1\. Trigger: Webhooks by Zapier - Catch Raw Hook
+
+This step listens for a raw HTTP POST request from an external system (e.g., your booking platform).
+
+| Setting | Details |
+| :--- | :--- |
+| **App & Event** | **Webhooks by Zapier** - Catch Raw Hook |
+| **Key Requirement** | The external system must send a POST request to the unique URL provided by Zapier. |
+| **Required Payload** | The data payload must include fields for: **Name**, **Link**, **Appointment Time**, and **Closer** (or whatever fields you need for your Sheet/Slack). |
+
+### 2\. Action: Slack - Send Channel Message
+
+This step uses the data received from the webhook to generate an immediate, user-friendly notification in Slack.
+
+| Setting | Value / Mapping |
+| :--- | :--- |
+| **Action Event** | Send Channel Message |
+| **Message Text** | **Appointment booked\!**<br>Name: `{{1.Name}}`<br>Link: `{{1.Link}}`<br>Appointment Time: `{{1.Appointment Time}}` |
+| **Send as a bot?** | **Yes** |
+| **Bot Name** | *(Specify a bot name here, e.g., 'Appointment Bot')* |
+| **Include a link to this Zap?** | No |
+
+### 3\. Action: Google Sheets - Update Spreadsheet Row(s)
+
+This step updates an existing row in your Google Sheet, likely to update the status or details of a record based on the received data.
+
+| Setting | Value / Mapping |
+| :--- | :--- |
+| **Action Event** | Update Spreadsheet Row(s) |
+| **Spreadsheet** | **CsutomerAppt** |
+| **Worksheet** | **Sheet1** |
+| **Row Number\*** | Mapped from a previous step (must contain the unique identifier/row number of the record to update). |
+| **Name** | `{{1.Name}}` (Mapped from Webhook) |
+| **Appt Time** | `{{1.Appointment Time}}` (Mapped from Webhook) |
+| **Contact Link** | `{{1.Link}}` (Mapped from Webhook) |
+| **Closer** | `{{1.Closer}}` (Mapped from Webhook) |
+
+> **💡 Note:** The `Update Spreadsheet Row(s)` action requires you to have a **Row Number**. This implies you likely have a previous step (or a Search Step, which you did not include) that *searches* for the existing row based on a unique ID (like a booking ID) received in the webhook. If you use the search step, you should document that here.
+
+## 🚀 How to Implement This Zap
+
+1.  **Create/Configure Sheets:** Ensure you have a Google Sheet named **CsutomerAppt** with columns that match the fields being mapped (`Name`, `Appt Time`, `Contact Link`, `Closer`).
+2.  **Create New Zap:** Start a new Zap in Zapier and choose **Webhooks by Zapier** as the trigger.
+3.  **Test Trigger:** Copy the webhook URL provided by Zapier and send a sample payload from your external system to test the trigger and pull in sample data.
+4.  **Configure Actions:** Set up the **Slack** and **Google Sheets** steps, mapping the data fields (e.g., `{{1.Name}}`) from the webhook step into the appropriate Slack message and Sheet columns.
+5.  **Turn On:** Activate the Zap\!
